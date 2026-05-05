@@ -1,0 +1,108 @@
+name: Daily Build And Smoke
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+  schedule:
+    - cron: '0 7 * * *'
+  workflow_dispatch:
+
+concurrency:
+  group: daily-build-and-smoke-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  gameplay-unit-tests:
+    name: Gameplay Unit Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: qa/package-lock.json
+
+      - name: Run gameplay unit tests
+        run: node --test tests/gameplay.test.js
+
+  qa-smoke:
+    name: QA Smoke Tests
+    runs-on: ubuntu-latest
+    needs: gameplay-unit-tests
+    timeout-minutes: 20
+    env:
+      ARTIFACT_DIR: ${{ github.workspace }}/artifacts/qa-captures
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: qa/package-lock.json
+
+      - name: Install QA dependencies
+        working-directory: qa
+        run: npm ci
+
+      - name: Install Playwright Chromium
+        working-directory: qa
+        run: npx playwright install --with-deps chromium
+
+      - name: Ensure writable artifact directories
+        run: |
+          mkdir -p "$ARTIFACT_DIR/test-results" "$ARTIFACT_DIR/html-report" "$ARTIFACT_DIR/screenshots"
+          chmod -R u+rwX "$ARTIFACT_DIR"
+
+      - name: QA preflight
+        working-directory: qa
+        run: npm run preflight
+
+      - name: Run smoke tests
+        working-directory: qa
+        run: npm test
+
+      - name: Upload smoke artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: qa-captures-${{ github.run_number }}
+          retention-days: 14
+          if-no-files-found: warn
+          path: |
+            artifacts/qa-captures/html-report
+            artifacts/qa-captures/test-results
+            artifacts/qa-captures/screenshots
+
+  daily-build-bundle:
+    name: Daily Build Bundle
+    runs-on: ubuntu-latest
+    needs: qa-smoke
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Build daily package
+        run: |
+          set -euo pipefail
+          mkdir -p build/daily
+          tar -czf "build/daily/crownforge-prototype-${GITHUB_RUN_NUMBER}.tar.gz" \
+            index.html src config docs prototype.js combatResolver.js ui_event_pipeline.js tests
+
+      - name: Upload daily build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: daily-build-${{ github.run_number }}
+          retention-days: 14
+          if-no-files-found: error
+          path: build/daily/*.tar.gz

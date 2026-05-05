@@ -1,0 +1,55 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Crownforge Prototype</title>
+  <style>
+    :root { --bg:#111; --fg:#eee; --muted:#aaa; --good:#5fd18a; --bad:#f47575; --card:#1b1b1b; }
+    body { margin:0; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; background:var(--bg); color:var(--fg); }
+    .wrap { display:grid; grid-template-columns: 320px 1fr 360px; gap:12px; padding:12px; }
+    .panel { background:var(--card); border:1px solid #2a2a2a; padding:10px; border-radius:8px; }
+    h2 { margin:0 0 8px; font-size:14px; text-transform:uppercase; color:var(--muted); }
+    button { background:#222; color:#eee; border:1px solid #3a3a3a; border-radius:6px; padding:6px 8px; cursor:pointer; margin:3px; }
+    button:hover { background:#2a2a2a; }
+    .row { display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+    #board { display:grid; grid-template-columns:repeat(4, 76px); grid-template-rows:repeat(3, 76px); gap:8px; }
+    .cell { border:1px dashed #444; border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:11px; text-align:center; padding:4px; min-height:70px; }
+    .unit { border-style:solid; border-color:#777; }
+    .shop-item { display:flex; justify-content:space-between; align-items:center; padding:6px; border:1px solid #333; border-radius:6px; margin-bottom:6px; }
+    .log { height:360px; overflow:auto; white-space:pre-wrap; font-size:12px; background:#0b0b0b; padding:8px; border-radius:8px; border:1px solid #222; }
+    .good { color: var(--good); }
+    .bad { color: var(--bad); }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="panel">
+      <h2>Run</h2>
+      <div class="row"><button id="start">Start Run</button><button id="restart">Restart</button></div>
+      <p id="state"></p>
+      <p id="hud-readability"></p>
+      <h2>Shop</h2>
+      <div id="shop"></div>
+      <button id="reroll">Reroll (1g)</button>
+      <h2>Rewards</h2>
+      <div id="rewards"></div>
+    </div>
+
+    <div class="panel">
+      <h2>Board (click unit tile to move/remove)</h2>
+      <div id="board"></div>
+      <h2>Bench</h2>
+      <div id="bench" class="row"></div>
+      <div class="row"><button id="fight">Start Auto-Combat</button></div>
+    </div>
+
+    <div class="panel">
+      <h2>Combat Log</h2>
+      <div id="log" class="log"></div>
+    </div>
+  </div>
+  <script src="ui_event_pipeline.js"></script>
+  <script src="prototype.js"></script>
+</body>
+</html>

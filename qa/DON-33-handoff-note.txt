@@ -1,0 +1,54 @@
+DON-33 QA Handoff Note
+
+DON-33 is now ready to continue in a capture-capable QA runtime.
+
+What has been prepared
+- A Node Playwright runtime has been added under `qa/`.
+- Three scripted visual smoke scenarios are implemented and passing.
+- Playwright Chromium browser binaries were installed and the suite was verified successfully in this workspace.
+- A Docker sidecar capture setup was also prepared for environments that prefer isolated QA execution.
+
+Validated command path
+From the project root:
+- `cd qa`
+- `npm install`
+- `npx playwright install chromium`
+- `npm run preflight`
+- `npm test`
+
+Current result
+- 3 smoke tests passing
+- screenshot evidence generated
+- video evidence generated
+- Playwright HTML report generated
+
+Implemented visual smoke scenarios
+1. Homepage shell renders
+2. Start run, buy a unit, and place it on the board
+3. Start auto-combat and capture the resolved combat state
+
+Primary evidence output
+- `artifacts/qa-captures/screenshots/01-homepage-shell.png`
+- `artifacts/qa-captures/screenshots/02-shop-and-placement.png`
+- `artifacts/qa-captures/screenshots/03-combat-resolution.png`
+- `artifacts/qa-captures/html-report/index.html`
+- videos and traces under `artifacts/qa-captures/test-results/`
+
+Optional Docker QA runtime
+From the project root:
+- `docker compose -f docker-compose.qa-capture.yml --profile qa up --build --abort-on-container-exit qa-capture`
+- `docker compose -f docker-compose.qa-capture.yml down`
+
+Notes for reassignment
+- This project is a static HTML/JS prototype, so the QA setup serves it via a lightweight local Node HTTP server.
+- Python is no longer required for the local serving path.
+- Before attempting capture, run `npm run preflight` to detect missing Chromium shared-library dependencies or missing Docker support.
+- The local Node Playwright path is sufficient for DON-33 scripted capture only when Chromium can actually launch in the worker.
+- The Docker sidecar path is included for QA environments that require containerized execution.
+
+Secondary defect note
+Paperclip previously reported a separate failure for:
+- `node --test tests/gameplay.test.js tests/combatResolver.test.js`
+with `ReferenceError: result is not defined` in `tests/combatResolver.test.js`.
+
+That failure was not reproducible in the current workspace snapshot during my verification. It should still be tracked separately if it appears again in the target QA runtime, but it is not blocking the Playwright capture setup now.

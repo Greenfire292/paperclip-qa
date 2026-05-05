@@ -1,0 +1,25 @@
+DON-33 Attachment Checklist
+
+Attach these files as the primary visual evidence:
+
+Screenshots
+- `artifacts/qa-captures/screenshots/01-homepage-shell.png`
+- `artifacts/qa-captures/screenshots/02-shop-and-placement.png`
+- `artifacts/qa-captures/screenshots/03-combat-resolution.png`
+
+Optional richer evidence
+- `artifacts/qa-captures/html-report/index.html`
+- all `.webm` files under `artifacts/qa-captures/test-results/`
+- all trace files under `artifacts/qa-captures/test-results/`
+
+Suggested attachment summary for DON-33
+- Screenshot 1: homepage shell loaded successfully
+- Screenshot 2: run started, unit purchased, unit placed on board
+- Screenshot 3: auto-combat executed and final combat state rendered
+- HTML report: full Playwright execution report
+- Videos/traces: supplemental replay/debug evidence
+
+Suggested comment text for the ticket
+Attached are the 3 required visual smoke scenario captures produced with the Playwright QA runtime, plus the Playwright HTML report and recorded videos/traces for supplemental evidence.
+
+If capture fails in a worker, run `cd qa && npm run preflight` first to confirm whether Chromium launch dependencies or Docker support are missing.
