@@ -62,7 +62,8 @@ const state = {
   rewards:[],
   inCombat:false,
   shopOpen:true,
-  eventFeed:[]
+  eventFeed:[],
+  saveRoot:''
 };
 const el = (id)=>document.getElementById(id);
 const log = (tMsg, cls='')=> { const d = document.createElement('div'); d.textContent=tMsg; if (cls) d.className=cls; el('log').appendChild(d); el('log').scrollTop = el('log').scrollHeight; };
@@ -182,8 +183,30 @@ function render(){
   el('rewards').innerHTML=''; state.rewards.forEach((r,i)=>{ const b=document.createElement('button'); b.textContent=r.txt; b.onclick=()=>pickReward(i); el('rewards').appendChild(b); });
 }
 
-el('start').onclick=startRun;
-el('restart').onclick=restart;
-el('fight').onclick=combat;
-el('reroll').onclick=()=>{ if(state.gold>=1){state.gold-=1; rollShop();} render(); };
-render();
+function initializeWithRuntimeAdapter() {
+  const runtime = RuntimeAdapter.createRuntimeAdapter({
+    runtimeId: RuntimeAdapter.WINDOWS_DESKTOP_RUNTIME,
+    dependencies: {
+      dom: document,
+      storage: typeof localStorage !== 'undefined' ? localStorage : null
+    }
+  });
+
+  state.saveRoot = runtime.storage.resolveSaveRoot();
+  runtime.input.bindClick('start', startRun);
+  runtime.input.bindClick('restart', restart);
+  runtime.input.bindClick('fight', combat);
+  runtime.input.bindClick('reroll', ()=>{ if(state.gold>=1){state.gold-=1; rollShop();} render(); });
+  runtime.lifecycle.onBoot(render);
+}
+
+try {
+  initializeWithRuntimeAdapter();
+} catch (err) {
+  const msg = err && err.message ? err.message : 'Runtime initialization failed.';
+  const logEl = el('log');
+  if (logEl) {
+    logEl.textContent = msg;
+  }
+  throw err;
+}
