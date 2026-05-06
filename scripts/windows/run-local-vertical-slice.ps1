@@ -10,30 +10,14 @@ param(
 $ErrorActionPreference = "Stop"
 
 $repoRoot = Resolve-Path (Join-Path $PSScriptRoot "../..")
-$qaDir = Join-Path $repoRoot "qa"
-$httpServerPackageDir = Join-Path $qaDir "node_modules/http-server"
+$serverScript = Join-Path $PSScriptRoot "serve-local-vertical-slice.cjs"
 
 if (-not (Get-Command node -ErrorAction SilentlyContinue)) {
   throw "Node.js is required. Install Node 20+ and re-run this script."
 }
 
-if (-not (Get-Command npm -ErrorAction SilentlyContinue)) {
-  throw "npm is required. Install Node.js (includes npm) and re-run this script."
-}
-
-if ((-not (Test-Path (Join-Path $qaDir "node_modules"))) -or (-not (Test-Path $httpServerPackageDir))) {
-  if ($NoInstall) {
-    throw "QA dependencies are missing and -NoInstall was set. Run without -NoInstall once."
-  }
-
-  Write-Host "Installing QA dependencies (first run only)..."
-  Push-Location $qaDir
-  try {
-    npm install
-  }
-  finally {
-    Pop-Location
-  }
+if (-not (Test-Path $serverScript)) {
+  throw "Missing local server script: $serverScript"
 }
 
 $url = "http://127.0.0.1:$Port"
@@ -50,9 +34,9 @@ if (-not $NoBrowser) {
   } -ArgumentList $url | Out-Null
 }
 
-Push-Location $qaDir
+Push-Location $repoRoot
 try {
-  npm exec -- http-server .. -a 127.0.0.1 -p $Port -c-1
+  node $serverScript 127.0.0.1 $Port
 }
 finally {
   Pop-Location

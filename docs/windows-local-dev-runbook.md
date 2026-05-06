@@ -11,7 +11,7 @@ Provide a one-command and one-click Windows local run path for engineering and Q
 - Command Prompt or Explorer double-click: `scripts\\windows\\run-local-vertical-slice.cmd`
 
 Both paths:
-- ensure local QA dependencies are installed when missing
+- require only Node.js 20+
 - start a local static server on `http://127.0.0.1:4173`
 - open the runtime in the default browser (unless `-NoBrowser` is passed)
 
@@ -28,12 +28,11 @@ Both paths:
 4. Verify runtime opens and is interactive in browser.
 
 Expected behavior:
-- Initial run may take longer due to `npm install` in `qa/`.
+- No `npm install` is required for the Windows local launcher.
 - Server remains in foreground until `Ctrl+C`.
 
 ## Optional flags
 - `-Port <n>`: override default port (`4173`)
-- `-NoInstall`: fail if dependencies are missing (CI/sandbox-safe mode)
 - `-NoBrowser`: start server without opening a browser
 
 Examples:
@@ -58,8 +57,8 @@ Note: runtime launch was not fully executed in this Linux heartbeat because DON-
 ### `Node.js is required`
 Install Node.js 20+ and reopen the shell.
 
-### `qa/node_modules is missing and -NoInstall was set`
-Run once without `-NoInstall` so dependencies can be installed.
+### `Missing local server script`
+Re-download the repo or pull the latest changes so `scripts/windows/serve-local-vertical-slice.cjs` exists.
 
 ### Port already in use (`EADDRINUSE`)
 Rerun with a different port:
