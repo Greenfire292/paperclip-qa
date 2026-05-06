@@ -69,3 +69,5 @@ Rerun with a different port:
 - Confirm this script window is still running.
 - Check firewall prompts for local loopback access.
 - Retry with `-NoBrowser` and open URL manually.
+- Open `http://127.0.0.1:4173/index.html` directly (not just host root).
+- Hard refresh once (`Ctrl+F5`) after server startup.

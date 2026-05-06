@@ -41,8 +41,13 @@ $serveCommand = "npx http-server .. -a 127.0.0.1 -p $Port -c-1"
 Write-Host "Starting local vertical-slice server at $url"
 Write-Host "Press Ctrl+C in this window to stop."
 
+# Delay browser launch so the local server has time to bind the port.
 if (-not $NoBrowser) {
-  Start-Process $url | Out-Null
+  Start-Job -ScriptBlock {
+    param($launchUrl)
+    Start-Sleep -Seconds 2
+    Start-Process "$launchUrl/index.html"
+  } -ArgumentList $url | Out-Null
 }
 
 Push-Location $qaDir
