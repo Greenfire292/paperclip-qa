@@ -23,11 +23,18 @@ $includePaths = @(
   "docs",
   "prototype.js",
   "combatResolver.js",
-  "ui_event_pipeline.js"
+  "ui_event_pipeline.js",
+  "runtime_adapter.js"
 )
 
 foreach ($path in $includePaths) {
   Copy-Item -Path (Join-Path $repoRoot $path) -Destination (Join-Path $stageDir $path) -Recurse -Force
+}
+
+# Guardrail: fail fast if runtime adapter is missing from stage payload.
+$runtimeAdapterStagePath = Join-Path $stageDir "runtime_adapter.js"
+if (-not (Test-Path $runtimeAdapterStagePath)) {
+  throw "Required packaging payload missing: runtime_adapter.js"
 }
 
 $artifactName = "crownforge-windows-steam-$Version"
@@ -37,6 +44,14 @@ if (Test-Path $zipPath) {
 }
 Compress-Archive -Path (Join-Path $stageDir "*") -DestinationPath $zipPath -CompressionLevel Optimal
 
+$zipEntries = [System.IO.Compression.ZipFile]::OpenRead($zipPath).Entries | ForEach-Object { $_.FullName }
+if (-not ($zipEntries -contains "runtime_adapter.js")) {
+  throw "Packaged artifact is missing runtime_adapter.js: $zipPath"
+}
+
+$listingPath = Join-Path $repoRoot "$OutputDir/$artifactName.filelist.txt"
+$zipEntries | Sort-Object | Set-Content -Path $listingPath -Encoding utf8
+
 $manifest = [ordered]@{
   artifactName = $artifactName
   version = $Version
@@ -44,6 +59,7 @@ $manifest = [ordered]@{
   buildRunNumber = $env:GITHUB_RUN_NUMBER
   buildRunId = $env:GITHUB_RUN_ID
   packagedAtUtc = (Get-Date).ToUniversalTime().ToString("o")
+  payloadFileList = (Split-Path -Leaf $listingPath)
   purpose = "Steam depot upload candidate"
 }
 

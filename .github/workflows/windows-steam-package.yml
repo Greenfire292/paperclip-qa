@@ -97,3 +97,4 @@ jobs:
             build/windows/*.zip
             build/windows/*.ps1
             build/windows/*.json
+            build/windows/*.txt

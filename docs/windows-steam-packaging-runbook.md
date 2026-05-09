@@ -29,6 +29,7 @@ Included payload paths:
 - `prototype.js`
 - `combatResolver.js`
 - `ui_event_pipeline.js`
+- `runtime_adapter.js`
 
 ## Artifact naming and versioning
 Package version format:
@@ -37,6 +38,7 @@ Package version format:
 Produced artifacts:
 - `crownforge-windows-steam-<version>.zip`
 - `crownforge-windows-steam-<version>.manifest.json`
+- `crownforge-windows-steam-<version>.filelist.txt`
 - `crownforge-windows-local-installer-<version>.ps1`
 - `crownforge-windows-local-installer-<version>.zip`
 
